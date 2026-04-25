@@ -89,7 +89,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Admin
 - Dashboard with live stats (students, teachers, attendance rate)
 - Manage students, teachers, subjects, and classes
-- Timetable builder (per class, per day)
+- Timetable builder (per class, per day) — fixed entry creation and editing
 - Holiday management (national, regional, school)
 - Attendance reports with CSV export
 - Teacher-subject assignments
@@ -123,6 +123,14 @@ Key tables:
 - `timetable` — weekly schedule per class
 - `attendance` — per-student, per-subject, per-date records
 - `holidays` — school calendar
+
+---
+
+## Changelog
+
+### Latest
+- Fixed timetable entry creation — teacher ID was resolving to the wrong foreign key (`users.id` instead of `teachers.id`)
+- Fixed timetable edit form — class, subject, and teacher fields now pre-populate correctly when editing an existing entry
 
 ---
 

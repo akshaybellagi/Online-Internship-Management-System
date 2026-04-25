@@ -5,10 +5,11 @@ import Modal from '@/components/Modal';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
 
 interface TimetableEntry {
-  id: number; class_name: string; section: string; subject_name: string;
+  id: number; class_id: number; subject_id: number; teacher_id: number;
+  class_name: string; section: string; subject_name: string;
   teacher_name: string; day_of_week: string; start_time: string; end_time: string; room: string;
 }
-interface SelectItem { id: number; name: string; section?: string; code?: string; }
+interface SelectItem { id: number; name: string; section?: string; code?: string; teacher_id?: number; }
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const empty = { class_id: '', subject_id: '', teacher_id: '', day_of_week: 'Monday', start_time: '', end_time: '', room: '' };
@@ -38,7 +39,7 @@ export default function TimetablePage() {
   const openAdd = () => { setEditing(null); setForm({ ...empty, day_of_week: selectedDay }); setModal(true); };
   const openEdit = (e: TimetableEntry) => {
     setEditing(e);
-    setForm({ class_id: '', subject_id: '', teacher_id: '', day_of_week: e.day_of_week, start_time: e.start_time, end_time: e.end_time, room: e.room || '' });
+    setForm({ class_id: String(e.class_id), subject_id: String(e.subject_id), teacher_id: String(e.teacher_id), day_of_week: e.day_of_week, start_time: e.start_time, end_time: e.end_time, room: e.room || '' });
     setModal(true);
   };
 
@@ -129,7 +130,7 @@ export default function TimetablePage() {
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Teacher *</label>
               <select required value={form.teacher_id} onChange={e => setForm({ ...form, teacher_id: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
                 <option value="">Select teacher</option>
-                {teachers.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
+                {teachers.map(t => <option key={t.id} value={t.teacher_id ?? t.id}>{t.name}</option>)}
               </select></div>
             <div><label className="block text-sm font-medium text-gray-700 mb-1">Day *</label>
               <select required value={form.day_of_week} onChange={e => setForm({ ...form, day_of_week: e.target.value })} className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500">
