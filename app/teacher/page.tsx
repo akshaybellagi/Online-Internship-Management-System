@@ -2,7 +2,6 @@ import { getSession } from '@/lib/auth';
 import { query } from '@/lib/db';
 import StatsCard from '@/components/StatsCard';
 import PageHeader from '@/components/PageHeader';
-import NotificationBanner from '@/components/NotificationBanner';
 import { BookOpen, Users, ClipboardList, Calendar } from 'lucide-react';
 
 export default async function TeacherDashboard() {
@@ -42,8 +41,6 @@ export default async function TeacherDashboard() {
   return (
     <div>
       <PageHeader title={`Hello, ${session?.name} 👋`} subtitle="Manage your classes and attendance" />
-
-      <NotificationBanner />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatsCard title="My Subjects" value={subjectCount} icon={<BookOpen size={22} />} color="bg-blue-500" />

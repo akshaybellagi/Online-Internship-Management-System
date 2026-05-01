@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 
-const publicPaths = ['/login', '/api/auth/login'];
+const publicPaths = ['/login', '/api/auth/login', '/register', '/api/auth/register'];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -20,9 +20,12 @@ export async function middleware(req: NextRequest) {
   }
 
   // Role-based route protection
-  if (pathname.startsWith('/admin') && payload.role !== 'admin') return NextResponse.redirect(new URL(`/${payload.role}`, req.url));
-  if (pathname.startsWith('/teacher') && payload.role !== 'teacher') return NextResponse.redirect(new URL(`/${payload.role}`, req.url));
-  if (pathname.startsWith('/student') && payload.role !== 'student') return NextResponse.redirect(new URL(`/${payload.role}`, req.url));
+  if (pathname.startsWith('/admin') && payload.role !== 'admin') {
+    return NextResponse.redirect(new URL(`/${payload.role}`, req.url));
+  }
+  if (pathname.startsWith('/student') && payload.role !== 'student') {
+    return NextResponse.redirect(new URL(`/${payload.role}`, req.url));
+  }
 
   return NextResponse.next();
 }

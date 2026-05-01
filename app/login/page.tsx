@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { School, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { Briefcase, Eye, EyeOff, Lock, Mail } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -32,27 +32,26 @@ export default function LoginPage() {
   };
 
   const demoAccounts = [
-    { role: 'Admin', email: 'admin@school.com', password: 'admin123', color: 'bg-violet-100 text-violet-700 border-violet-200' },
-    { role: 'Teacher', email: 'teacher@school.com', password: 'teacher123', color: 'bg-blue-100 text-blue-700 border-blue-200' },
-    { role: 'Student', email: 'student@school.com', password: 'student123', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+    { role: 'Admin', email: 'admin@internhub.com', password: 'admin123', color: 'bg-violet-100 text-violet-700 border-violet-200' },
+    { role: 'Student', email: 'rahul.sharma@student.com', password: 'student123', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-indigo-900 to-slate-900 flex items-center justify-center p-4">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl" />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl" />
       </div>
 
       <div className="relative w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl shadow-2xl mb-4">
-            <School size={32} className="text-white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl shadow-2xl mb-4">
+            <Briefcase size={32} className="text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-white">SmartAttend</h1>
-          <p className="text-gray-400 mt-1">Attendance Management System</p>
+          <h1 className="text-3xl font-bold text-white">InternHub</h1>
+          <p className="text-gray-400 mt-1">Internship Management System</p>
         </div>
 
         {/* Card */}
@@ -75,8 +74,8 @@ export default function LoginPage() {
                   required
                   value={form.email}
                   onChange={e => setForm({ ...form, email: e.target.value })}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  placeholder="you@school.com"
+                  className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-4 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  placeholder="you@internhub.com"
                 />
               </div>
             </div>
@@ -90,7 +89,7 @@ export default function LoginPage() {
                   required
                   value={form.password}
                   onChange={e => setForm({ ...form, password: e.target.value })}
-                  className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-12 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full bg-white/10 border border-white/20 rounded-lg pl-10 pr-12 py-3 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
                   placeholder="••••••••"
                 />
                 <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white">
@@ -102,7 +101,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition-all shadow-lg disabled:opacity-60 disabled:cursor-not-allowed mt-2"
+              className="w-full bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-700 hover:to-blue-700 text-white font-semibold py-3 rounded-lg transition-all shadow-lg disabled:opacity-60 disabled:cursor-not-allowed mt-2"
             >
               {loading ? 'Signing in...' : 'Sign In'}
             </button>
@@ -124,8 +123,18 @@ export default function LoginPage() {
               ))}
             </div>
           </div>
+
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-400">
+              Don't have an account?{' '}
+              <a href="/register" className="text-indigo-400 hover:text-indigo-300 font-medium">
+                Register here
+              </a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
 }
+

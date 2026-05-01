@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
-import AIChatbot from '@/components/AIChatbot';
 
 export default async function StudentLayout({ children }: { children: React.ReactNode }) {
   const session = await getSession();
@@ -18,7 +17,6 @@ export default async function StudentLayout({ children }: { children: React.Reac
           <div className="p-6 max-w-7xl mx-auto">{children}</div>
         </main>
       </div>
-      <AIChatbot />
     </div>
   );
 }

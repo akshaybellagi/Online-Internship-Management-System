@@ -1,8 +1,10 @@
 type BadgeVariant = 'success' | 'danger' | 'warning' | 'info' | 'default';
 
 interface BadgeProps {
-  label: string;
+  label?: string;
+  text?: string; // Support both label and text for backwards compatibility
   variant?: BadgeVariant;
+  className?: string; // Support custom className
 }
 
 const variants: Record<BadgeVariant, string> = {
@@ -13,10 +15,13 @@ const variants: Record<BadgeVariant, string> = {
   default: 'bg-gray-100 text-gray-700',
 };
 
-export default function Badge({ label, variant = 'default' }: BadgeProps) {
+export default function Badge({ label, text, variant = 'default', className }: BadgeProps) {
+  const displayText = text || label || '';
+  const badgeClass = className || `${variants[variant]}`;
+  
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${variants[variant]}`}>
-      {label}
+    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${badgeClass}`}>
+      {displayText}
     </span>
   );
 }

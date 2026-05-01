@@ -2,9 +2,9 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard, Users, BookOpen, Calendar, Umbrella,
-  BarChart3, ClipboardList, Clock, UserCircle, LogOut,
-  GraduationCap, ChevronLeft, ChevronRight, School
+  LayoutDashboard, Users, Briefcase, FileCheck, Award,
+  ClipboardList, BookOpen, GraduationCap, UserCircle, LogOut,
+  ChevronLeft, ChevronRight, Target
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -16,35 +16,25 @@ interface NavItem {
 
 const adminNav: NavItem[] = [
   { label: 'Dashboard', href: '/admin', icon: <LayoutDashboard size={18} /> },
+  { label: 'Internships', href: '/admin/internships', icon: <Briefcase size={18} /> },
+  { label: 'Applications', href: '/admin/applications', icon: <FileCheck size={18} /> },
   { label: 'Students', href: '/admin/students', icon: <GraduationCap size={18} /> },
-  { label: 'Teachers', href: '/admin/teachers', icon: <Users size={18} /> },
-  { label: 'Classes', href: '/admin/classes', icon: <School size={18} /> },
-  { label: 'Subjects', href: '/admin/subjects', icon: <BookOpen size={18} /> },
-  { label: 'Timetable', href: '/admin/timetable', icon: <Calendar size={18} /> },
-  { label: 'Holidays', href: '/admin/holidays', icon: <Umbrella size={18} /> },
-  { label: 'Reports', href: '/admin/reports', icon: <BarChart3 size={18} /> },
-];
-
-const teacherNav: NavItem[] = [
-  { label: 'Dashboard', href: '/teacher', icon: <LayoutDashboard size={18} /> },
-  { label: 'My Subjects', href: '/teacher/subjects', icon: <BookOpen size={18} /> },
-  { label: 'My Classes', href: '/teacher/classes', icon: <School size={18} /> },
-  { label: 'Mark Attendance', href: '/teacher/mark-attendance', icon: <ClipboardList size={18} /> },
-  { label: 'Attendance History', href: '/teacher/history', icon: <Clock size={18} /> },
-  { label: 'Timetable', href: '/teacher/timetable', icon: <Calendar size={18} /> },
-  { label: 'Holidays', href: '/teacher/holidays', icon: <Umbrella size={18} /> },
+  { label: 'Certificates', href: '/admin/certificates', icon: <Award size={18} /> },
+  { label: 'Exams', href: '/admin/exams', icon: <Target size={18} /> },
 ];
 
 const studentNav: NavItem[] = [
   { label: 'Dashboard', href: '/student', icon: <LayoutDashboard size={18} /> },
-  { label: 'My Attendance', href: '/student/attendance', icon: <ClipboardList size={18} /> },
-  { label: 'My Timetable', href: '/student/timetable', icon: <Calendar size={18} /> },
-  { label: 'Holidays', href: '/student/holidays', icon: <Umbrella size={18} /> },
+  { label: 'Browse Internships', href: '/student/internships', icon: <Briefcase size={18} /> },
+  { label: 'My Applications', href: '/student/applications', icon: <FileCheck size={18} /> },
+  { label: 'Learning Materials', href: '/student/materials', icon: <BookOpen size={18} /> },
+  { label: 'Exams', href: '/student/exams', icon: <Target size={18} /> },
+  { label: 'My Certificates', href: '/student/certificates', icon: <Award size={18} /> },
   { label: 'Profile', href: '/student/profile', icon: <UserCircle size={18} /> },
 ];
 
 interface SidebarProps {
-  role: 'admin' | 'teacher' | 'student';
+  role: 'admin' | 'student';
   userName: string;
 }
 
@@ -52,10 +42,9 @@ export default function Sidebar({ role, userName }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
-  const navItems = role === 'admin' ? adminNav : role === 'teacher' ? teacherNav : studentNav;
+  const navItems = role === 'admin' ? adminNav : studentNav;
   const roleColors = {
     admin: 'from-violet-600 to-purple-700',
-    teacher: 'from-blue-600 to-indigo-700',
     student: 'from-emerald-600 to-teal-700',
   };
 
@@ -64,11 +53,11 @@ export default function Sidebar({ role, userName }: SidebarProps) {
       {/* Header */}
       <div className={`flex items-center gap-3 p-4 bg-gradient-to-r ${roleColors[role]}`}>
         <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center flex-shrink-0">
-          <School size={18} />
+          <Briefcase size={18} />
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
-            <p className="font-bold text-sm truncate">SmartAttend</p>
+            <p className="font-bold text-sm truncate">InternHub</p>
             <p className="text-xs text-white/70 capitalize">{role} Panel</p>
           </div>
         )}

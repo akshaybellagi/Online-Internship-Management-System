@@ -2,98 +2,253 @@ import { getSession } from '@/lib/auth';
 import { query } from '@/lib/db';
 import StatsCard from '@/components/StatsCard';
 import PageHeader from '@/components/PageHeader';
-import NotificationBanner from '@/components/NotificationBanner';
-import { ClipboardList, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Briefcase, FileCheck, Award, Users, Calendar, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
 
 export default async function StudentDashboard() {
   const session = await getSession();
 
-  const students = await query<[{ id: number; roll_number: string; class_name: string }]>(`
-    SELECT s.id, s.roll_number, c.name as class_name
-    FROM students s LEFT JOIN classes c ON s.class_id = c.id
-    WHERE s.user_id=?
+  // Get student info
+  const students = await query<any[]>(`
+    SELECT s.id, s.student_id, s.institution, s.field_of_study
+    FROM students s
+    WHERE s.user_id = ?
   `, [session!.id]);
   const student = students[0];
 
-  let total = 0, present = 0, absent = 0, late = 0;
-  let subjectSummary: { subject_name: string; present: number; total: number; percentage: number }[] = [];
+  let stats = {
+    totalApplications: 0,
+    pendingApplications: 0,
+    approvedApplications: 0,
+    certificates: 0,
+    attendanceRate: 0
+  };
+
+  let recentApplications: any[] = [];
+  let upcomingExams: any[] = [];
 
   if (student) {
-    const [stats] = await query<[{ total: number; present: number; absent: number; late: number }]>(`
-      SELECT COUNT(*) as total, SUM(status='present') as present, SUM(status='absent') as absent, SUM(status='late') as late
-      FROM attendance WHERE student_id=?
+    // Get application stats
+    const [appStats] = await query<any[]>(`
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
+        SUM(CASE WHEN status = 'approved' THEN 1 ELSE 0 END) as approved
+      FROM applications 
+      WHERE student_id = ?
     `, [student.id]);
-    total = stats.total; present = stats.present || 0; absent = stats.absent || 0; late = stats.late || 0;
+    
+    stats.totalApplications = appStats.total || 0;
+    stats.pendingApplications = appStats.pending || 0;
+    stats.approvedApplications = appStats.approved || 0;
 
-    subjectSummary = await query(`
-      SELECT sub.name as subject_name, SUM(a.status='present') as present, COUNT(*) as total,
-             ROUND(SUM(a.status='present')/COUNT(*)*100,1) as percentage
-      FROM attendance a JOIN subjects sub ON a.subject_id=sub.id
-      WHERE a.student_id=? GROUP BY a.subject_id ORDER BY percentage ASC
+    // Get certificate count
+    const [certCount] = await query<any[]>(`
+      SELECT COUNT(*) as count 
+      FROM certificates 
+      WHERE student_id = ?
+    `, [student.id]);
+    stats.certificates = certCount.count || 0;
+
+    // Get attendance rate
+    const [attStats] = await query<any[]>(`
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN status = 'present' THEN 1 ELSE 0 END) as present
+      FROM attendance 
+      WHERE student_id = ?
+    `, [student.id]);
+    
+    if (attStats.total > 0) {
+      stats.attendanceRate = Math.round((attStats.present / attStats.total) * 100);
+    }
+
+    // Get recent applications
+    recentApplications = await query(`
+      SELECT 
+        a.id,
+        i.title as internship_title,
+        a.status,
+        a.applied_at
+      FROM applications a
+      JOIN internships i ON a.internship_id = i.id
+      WHERE a.student_id = ?
+      ORDER BY a.applied_at DESC
+      LIMIT 5
+    `, [student.id]);
+
+    // Get upcoming exams
+    upcomingExams = await query(`
+      SELECT 
+        e.id,
+        e.title,
+        e.exam_date,
+        i.title as internship_title
+      FROM exams e
+      JOIN internships i ON e.internship_id = i.id
+      JOIN applications a ON i.id = a.internship_id
+      WHERE a.student_id = ? 
+        AND a.status = 'approved'
+        AND e.exam_date > NOW()
+        AND e.is_active = 1
+      ORDER BY e.exam_date ASC
+      LIMIT 3
     `, [student.id]);
   }
 
-  const overallPct = total > 0 ? Math.round((present / total) * 100) : 0;
+  const statusColors: Record<string, string> = {
+    pending: 'bg-amber-100 text-amber-700 border-amber-200',
+    approved: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+    rejected: 'bg-red-100 text-red-700 border-red-200',
+    withdrawn: 'bg-gray-100 text-gray-700 border-gray-200'
+  };
 
   return (
     <div>
-      <PageHeader title={`Hi, ${session?.name} 👋`} subtitle={student ? `Roll: ${student.roll_number} · Class: ${student.class_name || 'N/A'}` : 'Welcome to SmartAttend'} />
+      <PageHeader 
+        title={`Welcome back, ${session?.name} 👋`} 
+        subtitle={student ? `${student.student_id} · ${student.institution || 'Student'}` : 'Welcome to InternHub'} 
+      />
 
-      {/* Live notification banners */}
-      <NotificationBanner />
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatsCard title="Total Classes" value={total} icon={<ClipboardList size={22} />} color="bg-blue-500" />
-        <StatsCard title="Present" value={present} icon={<CheckCircle size={22} />} color="bg-emerald-500" />
-        <StatsCard title="Absent" value={absent} icon={<XCircle size={22} />} color="bg-red-500" />
-        <StatsCard title="Late" value={late} icon={<Clock size={22} />} color="bg-amber-500" />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+        <StatsCard 
+          title="Applications" 
+          value={stats.totalApplications} 
+          icon={<FileCheck size={22} />} 
+          color="bg-blue-500" 
+        />
+        <StatsCard 
+          title="Pending" 
+          value={stats.pendingApplications} 
+          icon={<Calendar size={22} />} 
+          color="bg-amber-500" 
+        />
+        <StatsCard 
+          title="Approved" 
+          value={stats.approvedApplications} 
+          icon={<Briefcase size={22} />} 
+          color="bg-emerald-500" 
+        />
+        <StatsCard 
+          title="Certificates" 
+          value={stats.certificates} 
+          icon={<Award size={22} />} 
+          color="bg-indigo-500" 
+        />
+        <StatsCard 
+          title="Attendance" 
+          value={`${stats.attendanceRate}%`} 
+          icon={<TrendingUp size={22} />} 
+          color="bg-violet-500" 
+        />
       </div>
 
-      {/* Overall attendance ring */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 flex flex-col items-center justify-center">
-          <div className="relative w-32 h-32 mb-4">
-            <svg className="w-32 h-32 -rotate-90" viewBox="0 0 120 120">
-              <circle cx="60" cy="60" r="50" fill="none" stroke="#f1f5f9" strokeWidth="12" />
-              <circle cx="60" cy="60" r="50" fill="none"
-                stroke={overallPct >= 75 ? '#10b981' : overallPct >= 50 ? '#f59e0b' : '#ef4444'}
-                strokeWidth="12" strokeLinecap="round"
-                strokeDasharray={`${2 * Math.PI * 50}`}
-                strokeDashoffset={`${2 * Math.PI * 50 * (1 - overallPct / 100)}`} />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl font-bold text-gray-800">{overallPct}%</span>
-              <span className="text-xs text-gray-500">Overall</span>
-            </div>
-          </div>
-          <p className="text-sm font-medium text-gray-700">Overall Attendance</p>
-          <p className={`text-xs mt-1 font-medium ${overallPct >= 75 ? 'text-emerald-600' : overallPct >= 50 ? 'text-amber-600' : 'text-red-600'}`}>
-            {overallPct >= 75 ? 'Good standing' : overallPct >= 50 ? 'Needs improvement' : 'Critical — below 50%'}
-          </p>
-        </div>
-
+        {/* Recent Applications */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-          <h2 className="text-base font-semibold text-gray-800 mb-4">Subject-wise Attendance</h2>
-          {subjectSummary.length === 0 ? (
-            <p className="text-gray-400 text-sm text-center py-8">No attendance data yet</p>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-base font-semibold text-gray-800">Recent Applications</h2>
+            <Link 
+              href="/student/applications" 
+              className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+            >
+              View all →
+            </Link>
+          </div>
+          
+          {recentApplications.length === 0 ? (
+            <div className="text-center py-8">
+              <FileCheck size={48} className="mx-auto text-gray-400 mb-4" />
+              <p className="text-gray-600 mb-2">No applications yet</p>
+              <Link 
+                href="/student/internships"
+                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+              >
+                Browse internships →
+              </Link>
+            </div>
           ) : (
             <div className="space-y-3">
-              {subjectSummary.map((s, i) => (
-                <div key={i}>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-sm text-gray-700">{s.subject_name}</span>
-                    <span className={`text-xs font-semibold ${s.percentage >= 75 ? 'text-emerald-600' : s.percentage >= 50 ? 'text-amber-600' : 'text-red-600'}`}>{s.percentage}%</span>
+              {recentApplications.map((app) => (
+                <div key={app.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-800">{app.internship_title}</p>
+                    <p className="text-xs text-gray-500">
+                      Applied {new Date(app.applied_at).toLocaleDateString()}
+                    </p>
                   </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div className={`h-full rounded-full transition-all ${s.percentage >= 75 ? 'bg-emerald-500' : s.percentage >= 50 ? 'bg-amber-500' : 'bg-red-500'}`}
-                      style={{ width: `${s.percentage}%` }} />
-                  </div>
-                  <p className="text-xs text-gray-400 mt-0.5">{s.present}/{s.total} classes</p>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium border ${statusColors[app.status]}`}>
+                    {app.status}
+                  </span>
                 </div>
               ))}
             </div>
           )}
         </div>
+
+        {/* Upcoming Exams */}
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-base font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <Calendar size={16} className="text-indigo-500" /> Upcoming Exams
+          </h2>
+          
+          {upcomingExams.length === 0 ? (
+            <p className="text-gray-400 text-sm text-center py-8">No upcoming exams</p>
+          ) : (
+            <div className="space-y-3">
+              {upcomingExams.map((exam) => (
+                <div key={exam.id} className="p-3 rounded-lg bg-indigo-50 border border-indigo-100">
+                  <p className="text-sm font-medium text-gray-800 mb-1">{exam.title}</p>
+                  <p className="text-xs text-gray-600 mb-2">{exam.internship_title}</p>
+                  <div className="flex items-center gap-1 text-xs text-indigo-600">
+                    <Calendar size={12} />
+                    <span>{new Date(exam.exam_date).toLocaleString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Link 
+          href="/student/internships" 
+          className="p-4 bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-xl text-white hover:from-indigo-600 hover:to-indigo-700 transition-all shadow-sm"
+        >
+          <Briefcase size={20} className="mb-2" />
+          <h3 className="font-semibold text-sm">Browse Internships</h3>
+          <p className="text-xs text-indigo-100 mt-1">Find opportunities</p>
+        </Link>
+        
+        <Link 
+          href="/student/applications" 
+          className="p-4 bg-gradient-to-br from-amber-500 to-amber-600 rounded-xl text-white hover:from-amber-600 hover:to-amber-700 transition-all shadow-sm"
+        >
+          <FileCheck size={20} className="mb-2" />
+          <h3 className="font-semibold text-sm">My Applications</h3>
+          <p className="text-xs text-amber-100 mt-1">Track your applications</p>
+        </Link>
+        
+        <Link 
+          href="/student/certificates" 
+          className="p-4 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl text-white hover:from-emerald-600 hover:to-emerald-700 transition-all shadow-sm"
+        >
+          <Award size={20} className="mb-2" />
+          <h3 className="font-semibold text-sm">My Certificates</h3>
+          <p className="text-xs text-emerald-100 mt-1">View achievements</p>
+        </Link>
+        
+        <Link 
+          href="/student/materials" 
+          className="p-4 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl text-white hover:from-violet-600 hover:to-violet-700 transition-all shadow-sm"
+        >
+          <Users size={20} className="mb-2" />
+          <h3 className="font-semibold text-sm">Learning Materials</h3>
+          <p className="text-xs text-violet-100 mt-1">Access resources</p>
+        </Link>
       </div>
     </div>
   );

@@ -1,13 +1,14 @@
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'attendance-secret-key-2024');
+const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'internship-secret-key-2026');
 
 export interface JWTPayload {
   id: number;
   email: string;
-  role: 'admin' | 'teacher' | 'student';
+  role: 'admin' | 'student';
   name: string;
+  studentId?: number; // For student users
 }
 
 export async function signToken(payload: JWTPayload): Promise<string> {
@@ -32,3 +33,4 @@ export async function getSession(): Promise<JWTPayload | null> {
   if (!token) return null;
   return verifyToken(token);
 }
+
