@@ -6,9 +6,10 @@ const SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'internship-se
 export interface JWTPayload {
   id: number;
   email: string;
-  role: 'admin' | 'student';
+  role: 'admin' | 'student' | 'teacher';
   name: string;
   studentId?: number; // For student users
+  teacherId?: number; // For teacher users
 }
 
 export async function signToken(payload: JWTPayload): Promise<string> {

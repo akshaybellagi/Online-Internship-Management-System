@@ -5,8 +5,8 @@ import './globals.css';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'SmartAttend - Attendance Management System',
-  description: 'Smart Attendance Management System for Schools',
+  title: 'InternHub - Transform Your Future with Premium Internships',
+  description: 'Join thousands of students gaining real-world experience through comprehensive internship programs. Learn, grow, and earn industry-recognized certificates.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

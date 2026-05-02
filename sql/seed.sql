@@ -57,7 +57,7 @@ ON DUPLICATE KEY UPDATE
 
 -- Insert student users (20 students)
 INSERT INTO users (id, name, email, password, role, phone, is_active) VALUES
-(2, 'Rahul Sharma', 'rahul.sharma@student.com', '$2b$10$z0Cqu8GkV.27p.sCk7zuGO4bwik6bz1LGzN8EmjYd8KT/.mSQuirm', 'student', '+91-9876543211', TRUE),
+(2, 'Rahul Sharma', 'akxay.b@student.com', '$2b$10$z0Cqu8GkV.27p.sCk7zuGO4bwik6bz1LGzN8EmjYd8KT/.mSQuirm', 'student', '+91-9876543211', TRUE),
 (3, 'Priya Patel', 'priya.patel@student.com', '$2b$10$z0Cqu8GkV.27p.sCk7zuGO4bwik6bz1LGzN8EmjYd8KT/.mSQuirm', 'student', '+91-9876543212', TRUE),
 (4, 'Amit Kumar', 'amit.kumar@student.com', '$2b$10$z0Cqu8GkV.27p.sCk7zuGO4bwik6bz1LGzN8EmjYd8KT/.mSQuirm', 'student', '+91-9876543213', TRUE),
 (5, 'Sneha Reddy', 'sneha.reddy@student.com', '$2b$10$z0Cqu8GkV.27p.sCk7zuGO4bwik6bz1LGzN8EmjYd8KT/.mSQuirm', 'student', '+91-9876543214', TRUE),

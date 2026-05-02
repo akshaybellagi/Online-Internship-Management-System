@@ -33,7 +33,7 @@ export default function LoginPage() {
 
   const demoAccounts = [
     { role: 'Admin', email: 'admin@internhub.com', password: 'admin123', color: 'bg-violet-100 text-violet-700 border-violet-200' },
-    { role: 'Student', email: 'rahul.sharma@student.com', password: 'student123', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
+    { role: 'Student', email: 'akxay.b@student.com', password: 'student123', color: 'bg-emerald-100 text-emerald-700 border-emerald-200' },
   ];
 
   return (

@@ -33,8 +33,17 @@ const studentNav: NavItem[] = [
   { label: 'Profile', href: '/student/profile', icon: <UserCircle size={18} /> },
 ];
 
+const teacherNav: NavItem[] = [
+  { label: 'Dashboard', href: '/teacher', icon: <LayoutDashboard size={18} /> },
+  { label: 'My Classes', href: '/teacher/classes', icon: <Users size={18} /> },
+  { label: 'Mark Attendance', href: '/teacher/mark-attendance', icon: <ClipboardList size={18} /> },
+  { label: 'Attendance History', href: '/teacher/history', icon: <FileCheck size={18} /> },
+  { label: 'My Subjects', href: '/teacher/subjects', icon: <BookOpen size={18} /> },
+  { label: 'Timetable', href: '/teacher/timetable', icon: <Target size={18} /> },
+];
+
 interface SidebarProps {
-  role: 'admin' | 'student';
+  role: 'admin' | 'student' | 'teacher';
   userName: string;
 }
 
@@ -42,10 +51,11 @@ export default function Sidebar({ role, userName }: SidebarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
-  const navItems = role === 'admin' ? adminNav : studentNav;
+  const navItems = role === 'admin' ? adminNav : role === 'teacher' ? teacherNav : studentNav;
   const roleColors = {
     admin: 'from-violet-600 to-purple-700',
     student: 'from-emerald-600 to-teal-700',
+    teacher: 'from-blue-600 to-indigo-700',
   };
 
   return (

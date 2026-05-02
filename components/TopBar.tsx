@@ -2,7 +2,7 @@
 import { usePathname } from 'next/navigation';
 
 interface TopBarProps {
-  role: 'admin' | 'student';
+  role: 'admin' | 'student' | 'teacher';
   userName: string;
 }
 
